@@ -22,7 +22,7 @@
 
 (defvar *intcode* (make-instance 'intcode))
 
-(defun reset-computer ()
+(defun restart-computer ()
   (setf *intcode* (make-instance 'intcode)))
 
 (defun read-op-codes (filename)
