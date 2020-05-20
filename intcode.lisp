@@ -128,13 +128,13 @@
     (setf (set-mem z) (* (get-mem first-param-mode x)
                          (get-mem second-param-mode y)))))
 
-(defun input ()
+(defun input (&optional in)
   (with-io
-    (setf (set-mem x) (parse-integer (read-line)))))
+    (setf (set-mem x) (if in in (parse-integer (read-line))))))
 
-(defun output ()
+(defun output (&optional (stream t))
   (with-io
-    (print (get-mem 0 x))))
+    (format stream "~a" (get-mem 0 x))))
 
 (defun jump-if-true ()
   (with-jump
