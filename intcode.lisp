@@ -143,9 +143,11 @@
   (with-binary-expr
     (setf (set-mem z) (binary-result *))))
 
-(defun input (in)
+(defun input (&optional in)
   (with-io
-    (setf (set-mem x) (if in in (parse-integer (read-line))))))
+    ;; (setf (set-mem x) (if in in (parse-integer (read-line))))
+    (setf (set-mem x) in)
+    ))
 
 (defun output (&optional (stream t))
   (with-io
@@ -181,7 +183,7 @@
   (with-intcode intcode
     (let* ((op-codes (read-op-codes filename))
            (mem-size (length op-codes)))
-      (with-internals (memory setting out-buffer instruction-pointer)
+      (with-internals (memory halted setting out-buffer instruction-pointer)
         (setf instruction-pointer 0)
         (setf setting start)
         (setf out-buffer nil)
@@ -192,7 +194,10 @@
   "RUN dynamically binds an instance of INTCODE. "
   (with-intcode intcode
     (with-internals (memory instruction-pointer)
-      (setf instruction-pointer 0)
       (do* ((action (next-instruction) (next-instruction)))
            ((eql action 'halt) (aref memory 0))
-        (funcall action)))))
+        (cond ((eql action 'input)
+               (funcall action))
+              ((eql action 'output)
+               (funcall action nil))
+              (t (funcall action)))))))
