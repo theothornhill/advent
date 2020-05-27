@@ -18,4 +18,4 @@
   (let ((fuels (read-fuel-file filename)))
     (reduce #'+ (mapcar #'add-fuels fuels))))
 
-(fuel-required "./day1-input.txt")
+(fuel-required "./inputs/day1-input.txt")

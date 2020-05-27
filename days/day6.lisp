@@ -65,6 +65,6 @@
                           (gethash 'san *objects*) -1))))
 
 (defun day6 ()
-  (set-all-objects "./day6-input.txt")
+  (set-all-objects "./inputs/day6-input.txt")
   (values (part-one)
           (part-two)))

@@ -1,2 +1,2 @@
 *.fasl
-/day7-output.txt
+/scratch.lisp

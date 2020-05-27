@@ -1,11 +1,5 @@
 ;;; IntCode computer
 
-(ql:quickload :cl-ppcre)
-(defpackage :intcode
-  (:use :cl)
-  (:import-from :cl-ppcre
-                :split))
-
 (in-package :intcode)
 
 (defmacro with-gensyms (syms &body body)
@@ -16,13 +10,14 @@
   ((memory
     :initarg :memory
     :accessor memory)
-   (setting
-    :initarg :setting
-    :accessor setting)
-   (out-buffer
-    :initarg :out-buffer
-    :initform (list)
-    :accessor out-buffer)
+   (in
+    :initarg :in
+    :initform nil
+    :accessor in)
+   (out
+    :initarg :out
+    :initform nil
+    :accessor out)
    (instruction-pointer
     :initarg :instruction-pointer
     :initform 0
@@ -39,10 +34,11 @@
 
 (defun parse-instruction (instruction)
   (let ((i (format nil "~5,'0d" instruction)))
-    ;; KLUDGE: This thing does too many things.
-    ;; Handle case for halt value better, and maybe split the mv-bind?
+    ;; Force instruction format to be of length 5.
+    ;; In example, instruction 99 will be 00099, so we get the modes in
+    ;; front. We can map these to a list so we can get them later.
     (values (if (string= (subseq i 3) "99")
-                99
+                99 ;; If the last two digits are 99, return the integer
                 (parse-integer (subseq i 4)))
             (reverse (mapcar #'parse-integer
                              (split "" (subseq i 0 3)))))))
@@ -58,6 +54,9 @@
 (defmacro with-modes (&body body)
   "Anaphoric MODES variables"
   `(let* ((modes (nth-value
+                  ;; Use nth-value since we don't care about the first value
+                  ;; here. We want the modes, not the instruction
+                  ;; see `parse-instruction'
                   1 (parse-instruction
                      (get-mem 1 (instruction-pointer *intcode*)))))
           (first-param-mode (car modes))
@@ -145,16 +144,12 @@
 
 (defun input (&optional in)
   (with-io
-    ;; (setf (set-mem x) (if in in (parse-integer (read-line))))
-    (setf (set-mem x) in)
-    ))
+    (setf (set-mem x) in)))
 
 (defun output (&optional (stream t))
   (with-io
-    (with-internals (out-buffer)
-      (if (out-buffer *intcode*)
-          (push (get-mem 0 x) (cdr (last (out-buffer *intcode*))))
-          (push (get-mem 0 x) (out-buffer *intcode*)))
+    (with-internals (out)
+      (push (get-mem 0 x) (out *intcode*))
       (format stream "~a" (get-mem 0 x)))))
 
 (defun jump-if-true ()
@@ -179,25 +174,47 @@
 
 (defun halt () :halt)
 
-(defun init-intcode (filename intcode &optional (start nil))
+(defun init-intcode (filename intcode)
   (with-intcode intcode
     (let* ((op-codes (read-op-codes filename))
            (mem-size (length op-codes)))
-      (with-internals (memory halted setting out-buffer instruction-pointer)
+      (with-internals (memory in out instruction-pointer)
         (setf instruction-pointer 0)
-        (setf setting start)
-        (setf out-buffer nil)
+        (setf in nil)
+        (setf out nil)
         (setf memory (make-array mem-size :initial-contents op-codes))
         :initialized))))
 
-(defun run (intcode)
-  "RUN dynamically binds an instance of INTCODE. "
-  (with-intcode intcode
-    (with-internals (memory instruction-pointer)
-      (do* ((action (next-instruction) (next-instruction)))
-           ((eql action 'halt) (aref memory 0))
+;; (defun run (intcode)
+;;   "RUN dynamically binds an instance of INTCODE. "
+;;   (with-intcode intcode
+;;     (with-internals (memory instruction-pointer)
+;;       (do* ((action (next-instruction) (next-instruction)))
+;;            ((eql action 'halt) (aref memory 0))
+;;         (cond ((eql action 'input)
+;;                (funcall action))
+;;               ((eql action 'output)
+;;                (funcall action nil))
+;;               (t (funcall action)))))))
+
+(defun run-with-input (a b)
+  ;; We don't return anything here yet. We can always get the value from
+  ;; the correct computer. I'm guessing this is subject to change later
+  ;; anyways.
+  (with-intcode a
+    (with-instruction-pointer
+      (do ((action (next-instruction) (next-instruction)))
+          ((eql action 'halt))
         (cond ((eql action 'input)
-               (funcall action))
+               ;; KLUDGE: This thing is super ugly with its spinlock waiting...
+               (loop
+                 when (out b)
+                   do (let ((in (car (last (out b)))))
+                        ;; Remove last element and use it for input.
+                        ;; Noob implicit FIFO queue
+                        (setf (out b) (butlast (out b)))
+                        (input in)
+                        (return))))
               ((eql action 'output)
-               (funcall action nil))
+               (output nil))
               (t (funcall action)))))))

@@ -102,5 +102,5 @@ Then record number of steps to hit"
     (mapcar (lambda (x) (+ (abs (car x)) (abs (cadr x)))) result)))
 
 (defun day3 ()
-  (values (car (run-paths "./day3-input.txt"))
+  (values (car (run-paths "./inputs/day3-input.txt"))
           (car (sort (get-intersections) #'<))))
