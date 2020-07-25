@@ -1,8 +1,8 @@
 
 (asdf:defsystem :advent
   :description "Advent of Code"
-  :author "Theodor Thornhill <theothornhill@pm.me>"
-  :license  "MIT"
+  :author "Theodor Thornhill <theo@thornhill.no>"
+  :license  "GPLv3"
   :version "0.0.1"
   :depends-on (:cl-ppcre :bordeaux-threads)
   :components ((:file "package")
