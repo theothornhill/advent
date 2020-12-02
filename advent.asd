@@ -16,8 +16,10 @@
                                            (:file "day8")))))
                (:module "2020"
                 :components ((:file "package")
+                             (:file "utils")
                              (:module "days"
-                              :components ((:file "day1"))))))
+                              :components ((:file "day1")
+                                           (:file "day2"))))))
   :in-order-to ((test-op (test-op "advent/tests"))))
 
 (asdf:defsystem :advent/tests
