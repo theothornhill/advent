@@ -19,7 +19,8 @@
                              (:file "utils")
                              (:module "days"
                               :components ((:file "day1")
-                                           (:file "day2"))))))
+                                           (:file "day2")
+                                           (:file "day3"))))))
   :in-order-to ((test-op (test-op "advent/tests"))))
 
 (asdf:defsystem :advent/tests
