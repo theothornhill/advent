@@ -52,7 +52,10 @@
 (defun crashed-in-tree-part-2 ()
   (tagbody
    :initialize
-     (setf *round* *reset*)
+     (setf *round* *reset*
+           *round-results* nil
+           *i* *reset*
+           *j* *reset*)
      (go :set-new-steps)
    :set-new-steps
      (setf *trees* *reset*)
