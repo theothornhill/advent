@@ -2,9 +2,6 @@
 
 (defvar *day2-file* "2020/inputs/day2.txt")
 
-(defun split-by-space (string)
-  (cl-ppcre:split #\Space string))
-
 (defun split-by-dash (string)
   (mapcar #'parse-integer (cl-ppcre:split "-" string)))
 

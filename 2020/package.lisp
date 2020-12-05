@@ -6,4 +6,6 @@
    :count-valid-passwords-part-1
    :count-valid-passwords-part-2
    :crashed-in-tree-part-1
-   :crashed-in-tree-part-2))
+   :crashed-in-tree-part-2
+   :valid-passport-count-part-1
+   :valid-passport-count-part-2))
