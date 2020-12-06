@@ -3,7 +3,9 @@
   :author "Theodor Thornhill <theo@thornhill.no>"
   :license  "GPLv3"
   :version "0.0.1"
-  :depends-on (:cl-ppcre :bordeaux-threads)
+  :depends-on (:cl-ppcre
+               :bordeaux-threads
+               :arrow-macros)
   :components ((:module "2019"
                 :components ((:file "package")
                              (:file "intcode")
@@ -21,7 +23,8 @@
                               :components ((:file "day1")
                                            (:file "day2")
                                            (:file "day3")
-                                           (:file "day4"))))))
+                                           (:file "day4")
+                                           (:file "day5"))))))
   :in-order-to ((test-op (test-op "advent/tests"))))
 
 (asdf:defsystem :advent/tests
